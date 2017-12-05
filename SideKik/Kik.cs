@@ -19,7 +19,7 @@ namespace SideKik
 		public Kik(string username, string password)
 		{
 			_conn = new Connection();
-			_conn.Connect(EnvironmentProfile.Current);
+			_conn.Connect(EnvironmentProfile.Latest);
 			UserInfo = _conn.Login(username, password);
 			_pump = new MessagePump(_conn);
 			_pump.AddHandler("message", "groupchat", HandleGroupChat);
@@ -30,9 +30,14 @@ namespace SideKik
 			_pump.Run();
 		}
 
-		private void HandleGroupChat(XmlNode reader)
+		private void HandleGroupChat(XmlReader reader)
 		{
-			var root = reader;
+#warning TODO: Reform
+
+			var node = Message.Read(reader);
+
+			/*
+			var root = new XmlDocument().ReadNode(reader);
 			var from = JabberID.Parse(root.Attributes["from"].Value);
 			var group = JabberID.Parse(root.ChildNodes.Cast<XmlNode>().First(node => node.LocalName == "g").Attributes["jid"].Value);
 
@@ -52,6 +57,7 @@ namespace SideKik
 
 			var bodyNode = root.ChildNodes.Cast<XmlNode>().FirstOrDefault(node => node.LocalName == "body");
 			HandleMessage(root, from, group, bodyNode);
+			//*/
 		}
 
 		private void HandleGroupStatusUpdate(XmlNode root, JabberID from, JabberID group, XmlNode statusNode)
@@ -81,6 +87,7 @@ namespace SideKik
 
 		private void HandleIsTyping(JabberID group, JabberID from, XmlNode root, XmlNode isTypingNode)
 		{
+			Console.WriteLine($"[{group}] {from} is-typing");
 		}
 
 		private void HandleMessage(XmlNode root, JabberID from, JabberID group, XmlNode bodyNode)

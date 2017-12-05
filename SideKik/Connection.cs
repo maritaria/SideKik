@@ -18,6 +18,7 @@ namespace SideKik
 		private SslStream _stream;
 		private StreamReader _reader;
 		private StreamWriter _writer;
+		private XmlReader _xmlReader;
 
 		public EnvironmentProfile Profile { get; private set; }
 
@@ -61,6 +62,15 @@ namespace SideKik
 			}
 
 			_reader = new StreamReader(_stream, Encoding.UTF8);
+			_xmlReader = XmlReader.Create(_reader, new XmlReaderSettings
+			{
+				Async = true,
+				CloseInput = true,
+				ConformanceLevel = ConformanceLevel.Fragment,
+				IgnoreComments = true,
+				IgnoreWhitespace = true,
+				ValidationType = ValidationType.None,
+			});
 			_writer = new StreamWriter(_stream, Encoding.UTF8);
 			_writer.AutoFlush = true;
 		}
@@ -170,6 +180,7 @@ namespace SideKik
 			return xmlReader;
 		}
 
+		[Obsolete]
 		public IEnumerable<XmlNode> ReadNodes()
 		{
 			string data = Read();
@@ -189,6 +200,11 @@ namespace SideKik
 				var node = new XmlDocument().ReadNode(reader);
 				yield return node;
 			}
+		}
+
+		public XmlReader GetReader()
+		{
+			return _xmlReader;
 		}
 
 		public LoginResult Login(string username, string password)

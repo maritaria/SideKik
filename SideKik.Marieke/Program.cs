@@ -23,6 +23,7 @@ namespace SideKik.Marieke
 			var kik = new Kik(username, password);
 			kik.Run();
 			Console.WriteLine("KikBot started");
+			Console.ReadLine();
 		}
 	}
 }

@@ -185,6 +185,7 @@ namespace SideKik
 			}
 
 			byte[] newLowerBytes = BitConverter.GetBytes(least_significant_bits).Reverse().ToArray();
+			Contract.Assume(newLowerBytes.Length == 8);
 			Array.Copy(newLowerBytes, 0, bytes, 8, 8);
 			byte[] output_bytes = RemapGuidBytes(bytes);
 			return new Guid(output_bytes);
