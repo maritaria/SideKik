@@ -10,7 +10,7 @@ namespace SideKik
 {
 	public sealed class MessagePump
 	{
-		public delegate void Callback(XmlReader reader);
+		public delegate void Callback(XmlNode reader);
 
 		private Connection _connection;
 		private Dictionary<Guid, Callback> _requests = new Dictionary<Guid, Callback>();
@@ -47,35 +47,33 @@ namespace SideKik
 		{
 			while (_connection.IsConnected)
 			{
-				using (var reader = _connection.ReadXml())
+				foreach (var node in _connection.ReadNodes())
 				{
-					reader.Read();
-					if (reader.LocalName == "ack") continue;
+					if (node.LocalName == "ack") continue;
 
-					string id = reader.GetAttribute("id");
+					string id = node.Attributes["id"]?.InnerText;
 					Guid idGuid;
 					Callback callback;
 					if (id != null && Guid.TryParse(id, out idGuid) && _requests.TryGetValue(idGuid, out callback))
 					{
 						_requests.Remove(idGuid);
-						callback(reader);
+						callback(node);
 						continue;
 					}
 
-					string tag = reader.LocalName;
+					string tag = node.LocalName;
 					if (_tagHandlers.TryGetValue(tag, out callback))
 					{
-						callback(reader);
+						callback(node);
 						continue;
 					}
 
-					string type = reader.GetAttribute("type");
+					string type = node.Attributes["type"].InnerText;
 					if (_typedTagHandlers.TryGetValue(new Tuple<string, string>(tag, type), out callback))
 					{
-						callback(reader);
+						callback(node);
 						continue;
 					}
-
 					//throw new NotImplementedException();
 				}
 			}

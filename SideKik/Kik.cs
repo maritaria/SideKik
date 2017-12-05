@@ -30,18 +30,9 @@ namespace SideKik
 			_pump.Run();
 		}
 
-		private void HandleGroupChat(XmlReader reader)
+		private void HandleGroupChat(XmlNode reader)
 		{
-			XmlDocument doc = new XmlDocument();
-			try
-			{
-				doc.Load(reader);
-			}
-			catch (InvalidOperationException ex)
-			{
-				Console.WriteLine($"Error parsing: ${_conn.LastRead}");
-			}
-			var root = doc.FirstChild;
+			var root = reader;
 			var from = JabberID.Parse(root.Attributes["from"].Value);
 			var group = JabberID.Parse(root.ChildNodes.Cast<XmlNode>().First(node => node.LocalName == "g").Attributes["jid"].Value);
 
@@ -78,13 +69,13 @@ namespace SideKik
 
 		private void HandleMemberJoined(JabberID group, JabberID memberID)
 		{
-			Console.WriteLine($"[{group}] + {memberID}");
+			Console.WriteLine($"[{group}] +++ {memberID}");
 			SendMessage(group, File.ReadAllText("intro.txt"));
 		}
 
 		private void HandleMemberLeft(JabberID group, JabberID memberID)
 		{
-			Console.WriteLine($"[{group}] - {memberID}");
+			Console.WriteLine($"[{group}] --- {memberID}");
 			SendMessage(group, File.ReadAllText("outro.txt"));
 		}
 
@@ -96,6 +87,7 @@ namespace SideKik
 		{
 			if (bodyNode != null)
 			{
+				Console.WriteLine($"[{group}] {from}: {bodyNode.InnerText}");
 			}
 			else
 			{

@@ -14,10 +14,10 @@ namespace SideKik
 		public DateTime Created { get; } = DateTime.UtcNow;
 		public RequestState State { get; private set; } = RequestState.Created;
 
-		public void Answer(XmlReader reader)
+		public void Answer(XmlNode reader)
 		{
 			State = RequestState.Answered;
-			if (reader.GetAttribute("type") != "error")
+			if (reader.Attributes["type"].InnerText != "error")
 			{
 				OnAnswer?.Invoke(reader);
 			}
