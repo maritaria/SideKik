@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Xml;
+using SideKik.Messages;
 
 namespace SideKik
 {
@@ -22,7 +23,7 @@ namespace SideKik
 			_conn.Connect(EnvironmentProfile.Latest);
 			UserInfo = _conn.Login(username, password);
 			_pump = new MessagePump(_conn);
-			_pump.AddHandler("message", "groupchat", HandleGroupChat);
+			_pump.AddHandler("message", HandleGroupChat);
 		}
 
 		public void Run()
@@ -30,11 +31,11 @@ namespace SideKik
 			_pump.Run();
 		}
 
-		private void HandleGroupChat(XmlReader reader)
+		private void HandleGroupChat(XmlNode reader)
 		{
 #warning TODO: Reform
 
-			var node = Message.Read(reader);
+			var node = new IncomingMessage(reader);
 
 			/*
 			var root = new XmlDocument().ReadNode(reader);

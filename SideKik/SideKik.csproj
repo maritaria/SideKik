@@ -97,6 +97,7 @@
     <Compile Include="Encryption.cs" />
     <Compile Include="JabberID.cs" />
     <Compile Include="Kik.cs" />
+    <Compile Include="Message.cs" />
     <Compile Include="MessagePump.cs" />
     <Compile Include="Request.cs" />
     <Compile Include="Roster.cs" />
