@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace SideKik
 {
-	public struct JabberID
+	public struct JabberID : IEquatable<JabberID>
 	{
 		public static readonly string UserDomain = "talk.kik.com";
 		public static readonly string GroupDomain = "groups.kik.com";
@@ -95,7 +95,7 @@ namespace SideKik
 		{
 			if (!(obj is JabberID)) return false;
 			JabberID other = (JabberID)obj;
-			return Node == other.Node && Domain == other.Domain && Resource == other.Resource;
+			return this.Equals(other);
 		}
 
 		public override int GetHashCode()
@@ -107,6 +107,11 @@ namespace SideKik
 			code >>= 2;
 			code ^= (Resource != null) ? Resource.GetHashCode() : 1;
 			return code;
+		}
+
+		public bool Equals(JabberID other)
+		{
+			return Node == other.Node && Domain == other.Domain && Resource == other.Resource;
 		}
 	}
 }

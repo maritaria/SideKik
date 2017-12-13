@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using SideKik.Messages.Incoming;
 
 namespace SideKik
 {
@@ -14,20 +15,20 @@ namespace SideKik
 		public DateTime Created { get; } = DateTime.UtcNow;
 		public RequestState State { get; private set; } = RequestState.Created;
 
-		public void Answer(XmlNode answer)
+		public async Task Answer(XmlNode answer)
 		{
 			State = RequestState.Answered;
 			if (answer.Attributes["type"].Value != "error")
 			{
-				OnAnswer?.Invoke(answer);
+				await OnAnswer?.Invoke(answer);
 			}
 			else
 			{
-				OnError?.Invoke(answer);
+				await OnError?.Invoke(answer);
 			}
 		}
 
-		public event MessagePump.Callback OnAnswer;
-		public event MessagePump.Callback OnError;
+		public event IncomingRouter.MessageHandler OnAnswer;
+		public event IncomingRouter.MessageHandler OnError;
 	}
 }

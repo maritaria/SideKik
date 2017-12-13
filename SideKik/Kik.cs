@@ -5,15 +5,17 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
-using SideKik.Messages;
+using SideKik.Messages.Incoming;
 
 namespace SideKik
 {
 	public sealed class Kik
 	{
 		private Connection _conn;
-		private MessagePump _pump;
+		private IncomingRouter _router;
+		private IncomingMessageParser _parser;
 
 		public Connection.LoginResult UserInfo { get; }
 
@@ -22,45 +24,14 @@ namespace SideKik
 			_conn = new Connection();
 			_conn.Connect(EnvironmentProfile.Latest);
 			UserInfo = _conn.Login(username, password);
-			_pump = new MessagePump(_conn);
-			_pump.AddHandler("message", HandleGroupChat);
+			_router = new IncomingRouter(_conn.GetReader());
+			_parser = new IncomingMessageParser(_router);
 		}
 
-		public void Run()
+		public Task Run(CancellationToken cancel)
 		{
-			_pump.Run();
+			return _router.Run(cancel);
 		}
-
-		private void HandleGroupChat(XmlNode reader)
-		{
-#warning TODO: Reform
-
-			var node = new IncomingMessage(reader);
-
-			/*
-			var root = new XmlDocument().ReadNode(reader);
-			var from = JabberID.Parse(root.Attributes["from"].Value);
-			var group = JabberID.Parse(root.ChildNodes.Cast<XmlNode>().First(node => node.LocalName == "g").Attributes["jid"].Value);
-
-			var isTypingNode = root.ChildNodes.Cast<XmlNode>().FirstOrDefault(node => node.LocalName == "is-typing");
-			if (isTypingNode != null)
-			{
-				HandleIsTyping(group, from, root, isTypingNode);
-				return;
-			}
-
-			var statusNode = root.ChildNodes.Cast<XmlNode>().FirstOrDefault(node => node.LocalName == "status");
-			if (statusNode != null)
-			{
-				HandleGroupStatusUpdate(root, from, group, statusNode);
-				return;
-			}
-
-			var bodyNode = root.ChildNodes.Cast<XmlNode>().FirstOrDefault(node => node.LocalName == "body");
-			HandleMessage(root, from, group, bodyNode);
-			//*/
-		}
-
 		private void HandleGroupStatusUpdate(XmlNode root, JabberID from, JabberID group, XmlNode statusNode)
 		{
 			string message = statusNode.InnerText;
@@ -116,7 +87,7 @@ namespace SideKik
 			packet.Append($"<request xmlns=\"kik:message:receipt\" r=\"true\" d=\"true\" />");
 			packet.Append($"</message>");
 
-			_pump.AddHandler(request.ID, request.Answer);
+			_router.AddHandler(request.ID, request.Answer);
 			_conn.Write(packet.ToString());
 
 			return request;
@@ -136,7 +107,7 @@ namespace SideKik
 			packet.Append($"</query>");
 			packet.Append($"</iq>");
 
-			_pump.AddHandler(request.ID, request.Answer);
+			_router.AddHandler(request.ID, request.Answer);
 			_conn.Write(packet.ToString());
 
 			return request;
@@ -156,7 +127,7 @@ namespace SideKik
 			packet.Append($"</query>");
 			packet.Append($"</iq>");
 
-			_pump.AddHandler(request.ID, request.Answer);
+			_router.AddHandler(request.ID, request.Answer);
 			_conn.Write(packet.ToString());
 
 			return request;
@@ -176,7 +147,7 @@ namespace SideKik
 			packet.Append($"</query>");
 			packet.Append($"</iq>");
 
-			_pump.AddHandler(request.ID, request.Answer);
+			_router.AddHandler(request.ID, request.Answer);
 			_conn.Write(packet.ToString());
 
 			return request;
@@ -196,7 +167,7 @@ namespace SideKik
 			packet.Append($"</query>");
 			packet.Append($"</iq>");
 
-			_pump.AddHandler(request.ID, request.Answer);
+			_router.AddHandler(request.ID, request.Answer);
 			_conn.Write(packet.ToString());
 
 			return request;
@@ -216,7 +187,7 @@ namespace SideKik
 			packet.Append($"</query>");
 			packet.Append($"</iq>");
 
-			_pump.AddHandler(request.ID, request.Answer);
+			_router.AddHandler(request.ID, request.Answer);
 			_conn.Write(packet.ToString());
 
 			return request;
@@ -236,7 +207,7 @@ namespace SideKik
 			packet.Append($"</query>");
 			packet.Append($"</iq>");
 
-			_pump.AddHandler(request.ID, request.Answer);
+			_router.AddHandler(request.ID, request.Answer);
 			_conn.Write(packet.ToString());
 
 			return request;
@@ -256,7 +227,7 @@ namespace SideKik
 			packet.Append($"</query>");
 			packet.Append($"</iq>");
 
-			_pump.AddHandler(request.ID, request.Answer);
+			_router.AddHandler(request.ID, request.Answer);
 			_conn.Write(packet.ToString());
 
 			return request;
@@ -274,7 +245,7 @@ namespace SideKik
 			packet.Append($"</query>");
 			packet.Append($"</iq>");
 
-			_pump.AddHandler(request.ID, request.Answer);
+			_router.AddHandler(request.ID, request.Answer);
 			_conn.Write(packet.ToString());
 
 			return request;
@@ -290,7 +261,7 @@ namespace SideKik
 			packet.Append($"<query p=\"8\" xmlns=\"jabber:iq:roster\" />");
 			packet.Append($"</iq>");
 
-			_pump.AddHandler(request.ID, request.Answer);
+			_router.AddHandler(request.ID, request.Answer);
 			_conn.Write(packet.ToString());
 
 			return request;

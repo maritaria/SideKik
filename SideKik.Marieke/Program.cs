@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Xml;
 
 namespace SideKik.Marieke
@@ -21,7 +22,10 @@ namespace SideKik.Marieke
 
 			Console.WriteLine("KikBot starting");
 			var kik = new Kik(username, password);
-			kik.Run();
+			var cancelSource = new CancellationTokenSource();
+			var task = kik.Run(cancelSource.Token);
+
+			task.GetAwaiter().GetResult();
 			Console.WriteLine("KikBot started");
 			Console.ReadLine();
 		}

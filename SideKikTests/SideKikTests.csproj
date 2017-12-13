@@ -64,7 +64,6 @@
     <Compile Include="EncryptionTests.cs" />
     <Compile Include="JabberIDTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RosterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SideKik\SideKik.csproj">
